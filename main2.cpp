@@ -1,32 +1,52 @@
 #include <iostream>
+#include <cmath>
+#include <algorithm>
+
 using namespace std;
 
 int main() {
-    double a, b, c, d, h;
+    // Ремарка: устанавливаем кодировку UTF-8 для корректного отображения кириллицы
+    system("chcp 65001 > nul");
 
-    // Ввод данных с защитой от отрицательных чисел
-    cout <<"Введите длины оснований (a, b), боковых сторон (c, d) и высоту (h):" <<endl;
-    while (true) {
-        cin >> a >> b >> c >> d >> h;
-        if (a >= 0 && b >= 0 && c >= 0 && d >= 0 && h >= 0)
-            break;
-        else {
-            cout <<"Ошибка: числа не могут быть отрицательными. Повторите ввод:" <<endl;
-            // Очистка ошибочного ввода (на случай букв)
-            cin.clear();
-            while (cin.get() != '\n');
-        }
+    double a, b, c, d;
+
+    cout << "Введите основания (a, b) и боковые стороны (c, d): ";
+    if (!(cin >> a >> b >> c >> d)) {
+        cout << "Ошибка: Введите числовые значения." << endl;
+        return 1;
     }
 
-    // Вычисления
-    double perimeter = a + b + c + d;
-    double midline = (a + b) / 2.0;
-    double area = midline * h;
+    // 1. Проверка на положительные значения
+    if (a <= 0 || b <= 0 || c <= 0 || d <= 0) {
+        cout << "Ошибка: Стороны должны быть больше нуля." << endl;
+        return 0;
+    }
 
-    // Вывод результатов
-    cout <<"Периметр: " <<perimeter <<endl;
-    cout <<"Средняя линия: " <<midline <<endl;
-    cout <<"Площадь: " <<area <<endl;
+    // Пусть 'a' всегда будет большим основанием для удобства расчетов
+    if (a < b) swap(a, b);
+    double diff = a - b;
+
+    // 2. Проверка на существование трапеции
+    // Разность оснований и две боковые стороны должны удовлетворять неравенству треугольника
+    if (diff >= c + d || c >= diff + d || d >= diff + c || diff == 0) {
+        cout << "Ошибка: Трапеция с такими сторонами не существует." << endl;
+        return 0;
+    }
+
+    // Расчеты
+    double perimeter = a + b + c + d;
+    double mid_line = (a + b) / 2.0;
+
+    // Площадь по формуле через четыре стороны
+    // Используем max(0.0, ...), чтобы избежать ошибок из-за точности double под корнем
+    double s_part = ((diff * diff) + (c * c) - (d * d)) / (2 * diff);
+    double height = sqrt(max(0.0, (c * c) - (s_part * s_part)));
+    double area = mid_line * height;
+
+    cout << "\n--- Результаты ---" << endl;
+    cout << "Периметр: " << perimeter << endl;
+    cout << "Средняя линия: " << mid_line << endl;
+    cout << "Площадь: " << area << endl;
 
     return 0;
 }
